@@ -26,6 +26,7 @@
             <releaseGoal>install</releaseGoal>
           </releaseGoals>
           <passphrase>${ssh.passphrase}</passphrase>
+            <commitMessage># Release</commitMessage>
         </configuration>
       </plugin>
     </plugins>
