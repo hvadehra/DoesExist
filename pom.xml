@@ -16,6 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <ssh.passphrase></ssh.passphrase>
     </properties>
 
     <build>
@@ -28,6 +29,7 @@
                     <releaseGoals>
                         <releaseGoal>install</releaseGoal>
                     </releaseGoals>
+                    <passphrase>${ssh.passphrase}</passphrase>
                 </configuration>
             </plugin>
         </plugins>
