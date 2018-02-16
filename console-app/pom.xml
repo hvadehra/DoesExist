@@ -8,7 +8,7 @@
     <version>1.0.3</version>
   </parent>
   <artifactId>console-app</artifactId>
-  <version>3.2.3</version>
+  <version>3.2.3.0</version>
   <dependencies>
     <dependency>
       <groupId>com.github.danielflower.mavenplugins.testprojects.independentversions</groupId>
