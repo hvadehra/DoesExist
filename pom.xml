@@ -24,9 +24,12 @@
 
     <distributionManagement>
         <repository>
-            <id>dev</id>
-            <name>Local repository</name>
+            <id>local</id>
             <url>file://${user.home}/.m2/repository</url>
         </repository>
+        <snapshotRepository>
+            <id>local-snapshots</id>
+            <url>file://${user.home}/.m2/repository</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>
