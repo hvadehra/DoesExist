@@ -17,7 +17,7 @@
   </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/hvadehra/DoesExist</connection>
+        <connection>scm:git:ssh://git@github.com/hvadehra/DoesExist</connection>
         <url>https://github.com/hvadehra/DoesExist</url>
         <tag>HEAD</tag>
     </scm>
