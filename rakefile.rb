@@ -45,7 +45,6 @@ namespace :git do
             error("failed to merge from origin/#{dev_branch}")
         end
     end
-
 end
 
 namespace :mvn do
@@ -60,7 +59,9 @@ end
 
 namespace :jenkins do
   task :setup do
-    @client = JenkinsApi::Client.new(:server_ip => jenkins_host, :username => jenkins_username, :password => jenkins_password)
+    puts "configuring #{jenkins_host}:#{jenkins_port} with user: #{jenkins_username}, pass: #{jenkins_password}"
+    @client = JenkinsApi::Client.new(:server_ip => "#{jenkins_host}", :server_port => "#{jenkins_port}", :ssl => jenkins_ssl,
+    :username => jenkins_username, :password => jenkins_password)
   end
 end
 
@@ -68,16 +69,45 @@ task :release do
     cur_branch = `git rev-parse --abbrev-ref HEAD`.strip
     if cur_branch == "#{release_branch}"
         invoke_task "git:check_remote_diff"
-        invoke_task "git:merge_from_dev_branch"
+        if merge_from_dev_branch
+            invoke_task "git:merge_from_dev_branch"
+        end
         invoke_task "mvn:release"
         invoke_task "git:push"
-        invoke_task "git:merge_into_dev_branch"
+        if merge_into_dev_branch
+            invoke_task "git:merge_into_dev_branch"
+        end
     else
         error("not in release branch")
     end
 end
 
 task :build => ["jenkins:setup"] do
+    build_num = 0
+
+    job_name = "#{jenkins_jobname}"
+    opts = {'build_start_timeout' => 30,
+            'cancel_on_build_start_timeout' => true,
+            'poll_interval' => 2, # 2 is actually the default :)
+            'progress_proc' => lambda {
+                |max, curr, count|
+              puts "Progress: #{curr}/#{max}"
+            },
+            'completion_proc' => lambda {
+                |build_number, cancelled|
+              build_num = build_number unless cancelled
+            }
+    }
+    @client.job.build(job_name, jenkins_jobparams || {}, opts)
+
+    console = @client.job.get_console_output(job_name, build_num)
+    loop do
+      console = @client.job.get_console_output(job_name, build_num, console["size"])
+      print (console['output'].nil? || console['output'].empty?) ? "." : console['output']
+      break if !console['more']
+    end
+
+    puts console['output']
 
 end
 
@@ -98,8 +128,43 @@ def release_branch
     return APP_CONFIG["release_branch"]
 end
 
+def merge_into_dev_branch
+    return APP_CONFIG["merge_into_dev_branch"]
+end
+
+def merge_from_dev_branch
+    return APP_CONFIG["merge_from_dev_branch"]
+end
+
+def jenkins_config
+    return APP_CONFIG["jenkins"]
+end
+
 def jenkins_host
-    return APP_CONFIG["jenkins_url"]
+    return jenkins_config["host"]
+end
+
+def jenkins_port
+    return jenkins_config["port"]
+end
+
+def jenkins_ssl
+    return jenkins_config["ssl"]
+end
+
+def jenkins_path
+    return jenkins_config["path"]
+end
+
+def jenkins_jobname
+    return jenkins_config["job"]["name"]
+end
+
+def jenkins_jobparams
+    param_name = jenkins_config["job"]["param_names"]["tag_param_name"]
+    params = Hash.new
+    params[param_name] = git_latest_tag
+    return params
 end
 
 def jenkins_username
@@ -110,3 +175,6 @@ def jenkins_password
     return USER_CONFIG["password"]
 end
 
+def git_latest_tag
+    return `git describe --abbrev=0 --tags`.strip
+end
