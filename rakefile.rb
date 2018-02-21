@@ -26,15 +26,24 @@ namespace :git do
 
     task :merge_into_dev_branch do
         if system("git checkout #{dev_branch}")
-            if system("git merge #{release_branch}")
+            if system("git merge --no-ff origin/#{release_branch}")
                 invoke_task "git:push"
             else
-                error("failed to merge from #{release_branch}")
+                error("failed to merge from origin/#{release_branch}")
             end
         else
             error("failed to checkout #{dev_branch}")
         end
     end
+
+    task :merge_from_dev_branch do
+        if system("git merge --no-ff origin/#{dev_branch}")
+            invoke_task "git:push"
+        else
+            error("failed to merge from origin/#{dev_branch}")
+        end
+    end
+
 end
 
 namespace :mvn do
@@ -57,6 +66,7 @@ task :release do
     cur_branch = `git rev-parse --abbrev-ref HEAD`.strip
     if cur_branch == "#{release_branch}"
         invoke_task "git:check_remote_diff"
+        invoke_task "git:merge_from_dev_branch"
         invoke_task "mvn:release"
         invoke_task "git:push"
         invoke_task "git:merge_into_dev_branch"
