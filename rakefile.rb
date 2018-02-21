@@ -21,7 +21,10 @@ end
 namespace :mvn do
     task :release do
         puts "performing release"
-        sh %Q{mvn clean release:prepare release:perform}
+        rls_success = system("mvn clean release:prepare release:perform")
+        if !rls_success?
+            error("release failed")
+        end
     end
 end
 
