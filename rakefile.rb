@@ -22,7 +22,7 @@ namespace :mvn do
     task :release do
         puts "performing release"
         rls_success = system("mvn clean release:prepare release:perform")
-        if !rls_success?
+        if !rls_success
             error("release failed")
         end
     end
