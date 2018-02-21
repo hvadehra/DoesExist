@@ -25,8 +25,9 @@ namespace :git do
     end
 
     task :merge_into_dev_branch do
+        puts "merging from #{release_branch} into #{dev_branch}"
         if system("git checkout #{dev_branch}")
-            if system("git merge --no-ff origin/#{release_branch}")
+            if system("git merge --no-ff -m \"Merge remote-tracking branch origin/#{release_branch}\" origin/#{release_branch}")
                 invoke_task "git:push"
             else
                 error("failed to merge from origin/#{release_branch}")
@@ -37,7 +38,8 @@ namespace :git do
     end
 
     task :merge_from_dev_branch do
-        if system("git merge --no-ff origin/#{dev_branch}")
+        puts "merging from #{dev_branch} into #{release_branch}"
+        if system("git merge --no-ff -m \"Merge remote-tracking branch origin/#{dev_branch}\" origin/#{dev_branch}")
             invoke_task "git:push"
         else
             error("failed to merge from origin/#{dev_branch}")
