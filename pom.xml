@@ -24,11 +24,11 @@
 
     <distributionManagement>
         <repository>
-            <id>local</id>
+            <id>my-local</id>
             <url>file://${user.home}/.m2/repository</url>
         </repository>
         <snapshotRepository>
-            <id>local-snapshots</id>
+            <id>my-local-snapshots</id>
             <url>file://${user.home}/.m2/repository</url>
         </snapshotRepository>
     </distributionManagement>
