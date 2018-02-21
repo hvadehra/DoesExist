@@ -11,27 +11,28 @@ STDIN.sync=true; STDOUT.sync=true
 USER_CONFIG=JSON.parse(File.read(File.expand_path("~/.omsrakeconfig", __FILE__)))
 APP_CONFIG=JSON.parse(File.read(".apprakeconfig"))
 
-def release_branch
-    return APP_CONFIG["release_branch"]
-end
-
-def jenkins_host
-    return APP_CONFIG["jenkins_url"]
-end
-
-def jenkins_username
-    return USER_CONFIG["username"]
-end
-
-def jenkins_password
-    return USER_CONFIG["password"]
-end
-
 namespace :git do
     task :check_remote_diff do
         diff = `git diff "origin/#{release_branch}"`.strip
         if !diff.empty?
             error("not in sync with remote")
+        end
+    end
+
+    task :push do
+        puts "pushing to remote"
+        system("git push")
+    end
+
+    task :merge_into_dev_branch do
+        if system("git checkout #{dev_branch}")
+            if system("git merge #{release_branch}")
+                invoke_task "git:push"
+            else
+                error("failed to merge from #{release_branch}")
+            end
+        else
+            error("failed to checkout #{dev_branch}")
         end
     end
 end
@@ -57,6 +58,8 @@ task :release do
     if cur_branch == "#{release_branch}"
         invoke_task "git:check_remote_diff"
         invoke_task "mvn:release"
+        invoke_task "git:push"
+        invoke_task "git:merge_into_dev_branch"
     else
         error("not in release branch")
     end
@@ -73,5 +76,25 @@ end
 def invoke_task task
   Rake::Task[task].reenable
   Rake::Task[task].invoke
+end
+
+def dev_branch
+    return APP_CONFIG["dev_branch"]
+end
+
+def release_branch
+    return APP_CONFIG["release_branch"]
+end
+
+def jenkins_host
+    return APP_CONFIG["jenkins_url"]
+end
+
+def jenkins_username
+    return USER_CONFIG["username"]
+end
+
+def jenkins_password
+    return USER_CONFIG["password"]
 end
 
