@@ -26,10 +26,10 @@ namespace :git do
 
     task :merge_into_dev_branch do
         if system("git checkout #{dev_branch}")
-            if system("git merge #{release_branch}")
+            if system("git merge --no-ff origin/#{release_branch}")
                 invoke_task "git:push"
             else
-                error("failed to merge from #{release_branch}")
+                error("failed to merge from origin/#{release_branch}")
             end
         else
             error("failed to checkout #{dev_branch}")
