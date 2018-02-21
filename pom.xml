@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.danielflower.mavenplugins.testprojects.independentversions</groupId>
   <artifactId>independent-versions</artifactId>
-  <version>1.0.3.0</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>core-utils</module>
@@ -15,7 +15,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <current.plugin.version>2.2-SNAPSHOT</current.plugin.version>
   </properties>
-  <build>
+
+    <scm>
+        <connection>scm:git:https://github.com/hvadehra/DoesExist</connection>
+        <url>https://github.com/hvadehra/DoesExist</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <build>
     <plugins>
       <plugin>
         <groupId>com.github.danielflower.mavenplugins</groupId>

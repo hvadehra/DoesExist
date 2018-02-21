@@ -5,10 +5,10 @@
   <parent>
     <groupId>com.github.danielflower.mavenplugins.testprojects.independentversions</groupId>
     <artifactId>independent-versions</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>core-utils</artifactId>
-  <version>2.0.3.0</version>
+  <version>2.0.4-SNAPSHOT</version>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
