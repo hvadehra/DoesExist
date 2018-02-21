@@ -28,7 +28,7 @@ end
 task :release do
     cur_branch = `git rev-parse --abbrev-ref HEAD`.strip
     if cur_branch == "#{RELEASE_BRANCH}"
-        #invoke_task "git:check_remote_diff"
+        invoke_task "git:check_remote_diff"
         invoke_task "mvn:release"
     else
         error("not in release branch")

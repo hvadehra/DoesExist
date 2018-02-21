@@ -22,20 +22,4 @@
         <tag>HEAD</tag>
     </scm>
 
-    <build>
-    <plugins>
-      <plugin>
-        <groupId>com.github.danielflower.mavenplugins</groupId>
-        <artifactId>multi-module-maven-release-plugin</artifactId>
-        <version>${current.plugin.version}</version>
-        <configuration>
-          <releaseGoals>
-            <releaseGoal>install</releaseGoal>
-          </releaseGoals>
-          <passphrase>${ssh.passphrase}</passphrase>
-          <commitMessage># Release</commitMessage>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
