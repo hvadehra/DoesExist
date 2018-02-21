@@ -1,17 +1,35 @@
-APP_NAME='some-app'
-RELEASE_BRANCH='master'
 
 $: << File.dirname(__FILE__)
 
 require 'rubygems'
 require 'rake'
 require 'jenkins_api_client'
+require 'json'
 
 STDIN.sync=true; STDOUT.sync=true
 
+USER_CONFIG=JSON.parse(File.read(File.expand_path("~/.omsrakeconfig", __FILE__)))
+APP_CONFIG=JSON.parse(File.read(".apprakeconfig"))
+
+def release_branch
+    return APP_CONFIG["release_branch"]
+end
+
+def jenkins_host
+    return APP_CONFIG["jenkins_url"]
+end
+
+def jenkins_username
+    return USER_CONFIG["username"]
+end
+
+def jenkins_password
+    return USER_CONFIG["password"]
+end
+
 namespace :git do
     task :check_remote_diff do
-        diff = `git diff "origin/#{RELEASE_BRANCH}"`.strip
+        diff = `git diff "origin/#{release_branch}"`.strip
         if !diff.empty?
             error("not in sync with remote")
         end
@@ -21,21 +39,31 @@ end
 namespace :mvn do
     task :release do
         puts "performing release"
-        rls_success = system("mvn clean release:prepare release:perform")
+        rls_success = system("mvn -Darguments=\"-DskipTests\" release:prepare release:perform")
         if !rls_success
             error("release failed")
         end
     end
 end
 
+namespace :jenkins do
+  task :setup do
+    @client = JenkinsApi::Client.new(:server_ip => jenkins_host, :username => jenkins_username, :password => jenkins_password)
+  end
+end
+
 task :release do
     cur_branch = `git rev-parse --abbrev-ref HEAD`.strip
-    if cur_branch == "#{RELEASE_BRANCH}"
+    if cur_branch == "#{release_branch}"
         invoke_task "git:check_remote_diff"
         invoke_task "mvn:release"
     else
         error("not in release branch")
     end
+end
+
+task :build => ["jenkins:setup"] do
+
 end
 
 def error(msg)
